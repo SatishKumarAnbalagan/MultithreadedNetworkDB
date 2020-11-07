@@ -13,12 +13,56 @@ Team: NULL_pointer
 
 Git logs
 
-Total commits –24 commits
-    1.Satish Kumar Anbalagan – 10 commits
+Total commits – 16 commits
+    1.Satish Kumar Anbalagan – 13 commits
     2.Chuhan Zhang –  3 commits
 
 satish@ubuntu:~/cs5600/cs5600-p2-threaded-server-null_pointer$ git log
-commit 6d6e354bdee32633ed81c7393ff5a36b5e78b06f (HEAD -> dev, origin/dev)
+commit 6c524a37dba01f2a4752c612ec09146fc53461ca (HEAD -> dev, origin/dev)
+Author: Satish Kumar Anbalagan <anbalagan.s@northeastern.edu>
+Date:   Fri Nov 6 21:26:21 2020 -0500
+
+    progress update
+
+commit 992011f410b4c35ce1eb97ad0cfcce9176b8ddf6
+Merge: 554cc66 a57c7ac
+Author: Satish Kumar Anbalagan <anbalagan.s@northeastern.edu>
+Date:   Fri Nov 6 21:23:31 2020 -0500
+
+    Merge branch 'dev' of https://github.com/khoury-fall20-cs5600-desnoyers/cs5600-p2-threaded-server-null_pointer into dev
+
+commit 554cc66acc8f229a8d310d2fd1fee541969f279c
+Merge: 0f53529 6c21e5d
+Author: Satish Kumar Anbalagan <anbalagan.s@northeastern.edu>
+Date:   Fri Nov 6 21:22:42 2020 -0500
+
+    progress update
+
+commit a57c7ac29db0b913261c49f719428f9f8a28e0fc
+Author: Chuhan Zhang <39284586+ChuhanZhangGit@users.noreply.github.com>
+Date:   Fri Nov 6 21:19:53 2020 -0500
+
+    Update progress.txt
+
+commit 0f53529b3eee89d313ff32aa591b9e8e6759da19
+Author: Satish Kumar Anbalagan <anbalagan.s@northeastern.edu>
+Date:   Fri Nov 6 21:14:57 2020 -0500
+
+    progress report
+
+commit 8941664a54f185a2eabff892c48a8102fad6aed5
+Author: Satish Kumar Anbalagan <anbalagan.s@northeastern.edu>
+Date:   Fri Nov 6 21:14:20 2020 -0500
+
+    progress report
+
+commit 6c21e5dfce20132ee245072668c6b4022d6b205a
+Author: Chuhan Zhang <39284586+ChuhanZhangGit@users.noreply.github.com>
+Date:   Fri Nov 6 21:13:38 2020 -0500
+
+    Create progress.txt
+
+commit 6d6e354bdee32633ed81c7393ff5a36b5e78b06f
 Author: Satish Kumar Anbalagan <anbalagan.s@northeastern.edu>
 Date:   Fri Nov 6 21:11:08 2020 -0500
 
