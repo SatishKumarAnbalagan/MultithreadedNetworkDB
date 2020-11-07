@@ -1,0 +1,9 @@
+## Preparation
+1. Find and read material and documentation about socket and related methods.
+2. Discussed the timeline to complete the assignment.
+3. Understand the READ_ME of project 2 step by step.
+4. Complilation problem still persists on a MacOS machine after argo-standalone package installed.Fixed it by adding additional flag in compilation. 
+
+## Progress
+1. main function.
+2. listener function.
