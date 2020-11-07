@@ -86,6 +86,7 @@ Third part - commenting, clean up & testing of the codebase and data base.
 4. Complilation problem still persists on a MacOS machine after argo-standalone package installed.Fixed it by adding additional flag in compilation. 
 
 ## Progress
+<<<<<<< HEAD
 
 1) Satish, Chuhan - Checked & understood the requirements fully.
 2) Satish, Chuhan - Initial design of functionalities.
@@ -107,3 +108,11 @@ Third part - commenting, clean up & testing of the codebase and data base.
 14) Chuhan - listener function.
 15) 
 
+=======
+1. Implemented main function.
+2. Implemented listener function.
+3. Wrote display stats function.
+4. Initial implemention of handle work, queue work, get_work function.
+5. Initial data structure for command and reply.
+6. Initial multi-thread implementation.
+>>>>>>> a57c7ac29db0b913261c49f719428f9f8a28e0fc
