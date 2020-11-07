@@ -13,7 +13,9 @@ Team: NULL_pointer
 
 Git logs
 
-Total commits –24 commits1.Satish Kumar Anbalagan –15 commits2.Chuhan Zhang–6 commits3.Maria Jump –2 commits4.Cbdscolin –1 commit
+Total commits –24 commits
+    1.Satish Kumar Anbalagan – 10 commits
+    2.Chuhan Zhang–  commits
 
 satish@ubuntu:~/cs5600/cs5600-p2-threaded-server-null_pointer$ git log
 commit 6d6e354bdee32633ed81c7393ff5a36b5e78b06f (HEAD -> dev, origin/dev)
