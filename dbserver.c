@@ -60,7 +60,7 @@ int main() {
     char line[128]; /* or whatever */
     stats = (stats_t*) malloc(sizeof(stats_t));
     while (fgets(line, sizeof(line), stdin) != NULL) {
-        printf("%s\n", line);
+        printf("Input: %s\n", line);
         if(strcmp("quit\n", line) == 0) {
             exit(0);
         }
