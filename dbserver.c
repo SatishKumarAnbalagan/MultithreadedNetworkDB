@@ -150,7 +150,7 @@ int main() {
     pthread_t tid[5];   // 1 listener, 4 worker
 	int rc;
 	int i = 0;
-	rc = pthread_create(&tid[i], NULL, listener, NULL;
+	rc = pthread_create(&tid[i], NULL, listener, NULL);
     if (rc) {
 	    perror("Error:unable to create thread\n"), exit(-1);
     }
