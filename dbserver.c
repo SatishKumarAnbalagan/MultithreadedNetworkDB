@@ -30,6 +30,7 @@ int queue_work(int sock_fd);
 int get_work();
 int read_data(char* filename, char* buf);
 int write_data(char* filename, char* buf, int len);
+void display_stats();
 
 // function definition
 
@@ -95,6 +96,7 @@ int handle_work(int sock_fd){
     return 0;
 }
 
+// add to the queue
 int queue_work(int sock_fd){
     return 0;
 }
