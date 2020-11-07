@@ -15,7 +15,7 @@ Git logs
 
 Total commits –24 commits
     1.Satish Kumar Anbalagan – 10 commits
-    2.Chuhan Zhang–  commits
+    2.Chuhan Zhang –  3 commits
 
 satish@ubuntu:~/cs5600/cs5600-p2-threaded-server-null_pointer$ git log
 commit 6d6e354bdee32633ed81c7393ff5a36b5e78b06f (HEAD -> dev, origin/dev)
@@ -79,6 +79,14 @@ First part - decided to implement the basic functionalities of the server.
 Second part - decided to do multi-thread implementation and do changes accordingly. 
 Third part - commenting, clean up & testing of the codebase and data base.
 
+## Preparation
+1. Find and read material and documentation about socket and related methods.
+2. Discussed the timeline to complete the assignment.
+3. Understand the READ_ME of project 2 step by step.
+4. Complilation problem still persists on a MacOS machine after argo-standalone package installed.Fixed it by adding additional flag in compilation. 
+
+## Progress
+
 1) Satish, Chuhan - Checked & understood the requirements fully.
 2) Satish, Chuhan - Initial design of functionalities.
 3) Satish - Creation & initial commit of dbserver.c.
@@ -94,4 +102,8 @@ Third part - commenting, clean up & testing of the codebase and data base.
 9) Satish - added progress report. 
 10) Satish - added initial data structure for cmd/reply and multi- thread
 11) Satish - added progress report
-12) 
+12) Chuhan - progress report.
+13) Chuhan - main function modified.
+14) Chuhan - listener function.
+15) 
+
