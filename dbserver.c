@@ -6,6 +6,10 @@
 #include <fcntl.h>
 #include <string.h>
 
+// Macros
+#define MAX 4096
+#define FILE_NAME "./temp.txt"
+
 // type definition
 typedef struct stats_t {
     unsigned int table_items;
@@ -42,9 +46,61 @@ int listener() {
 
     while (1) {
         int fd = accept(sock, NULL, NULL);    /* (E) */
+
+        if (fd < 0)
+            perror("server acccept failed...\n"), exit(0); 
+        else
+            perror("server acccept the client...\n"); 
+
         printf("file descriptor: %d\n", fd);
+
+        queue_work(fd);
+
+        handle_work(get_work());
     }
 
+    return 0;
+}
+
+int handle_work(int sock_fd){
+    char buff[MAX]; 
+    int n; 
+    // infinite loop for chat 
+    for (;;) { 
+        bzero(buff, MAX); 
+  
+        // read the message from client and copy it in buffer 
+        read_data(FILE_NAME, buff); 
+        // print buffer which contains the client contents 
+        printf("From client: %s\t To client : ", buff); 
+        bzero(buff, MAX); 
+        n = 0; 
+        // copy server message in the buffer 
+        while ((buff[n++] = getchar()) != '\n') 
+            ; 
+  
+        // and send that buffer to client 
+        write(FILE_NAME, buff, sizeof(buff)); 
+  
+        // if msg contains "Exit" then server exit and chat ended. 
+        if (strncmp("quit", buff, 4) == 0) { 
+            printf("Server Exit...\n"); 
+            break; 
+        } else if(strcmp("stats", buff) == 0) {
+            display_stats();
+        } else {
+            continue;
+        }
+    } 
+    return 0;
+}
+
+int queue_work(int sock_fd){
+    return 0;
+}
+
+// returns the fd in queue
+int get_work(){
     return 0;
 }
 
