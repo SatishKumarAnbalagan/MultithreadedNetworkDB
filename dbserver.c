@@ -20,6 +20,13 @@ typedef struct stats_t {
     unsigned int no_failed_request;
 }stats_t;
 
+typedef struct command_reply_t {
+    char op;
+    char name[31];
+    unsigned char len;
+    char *data;
+}command_reply_t;
+
 //global variable
 stats_t *stats;
 
@@ -54,6 +61,8 @@ int listener() {
             perror("server acccept the client...\n"); 
 
         printf("file descriptor: %d\n", fd);
+
+        usleep(random() % 10000);
 
         queue_work(fd);
 
@@ -137,6 +146,25 @@ int main() {
     system("rm -f /tmp/data.*");
     char line[128]; /* or whatever */
     stats = (stats_t*) malloc(sizeof(stats_t));
+
+    pthread_t tid[5];   // 1 listener, 4 worker
+	int rc;
+	int i = 0;
+	rc = pthread_create(&tid[i], NULL, listener, NULL;
+    if (rc) {
+	    perror("Error:unable to create thread\n"), exit(-1);
+    }
+        
+    sleep(1);
+        
+    for(i=1;i<5;i++) {
+        rc = pthread_create(&tid[i], NULL, handle_work, (void *)i);
+		if (rc) {
+		    printf("Error:unable to create thread, %d\n", rc);
+		    exit(-1);
+		}
+    }
+        
     while (fgets(line, sizeof(line), stdin) != NULL) {
         printf("Input: %s\n", line);
         if(strcmp("quit\n", line) == 0) {
@@ -149,4 +177,7 @@ int main() {
             continue;
         }
     }
+
+    pthread_exit(NULL);
+
 }
