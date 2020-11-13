@@ -1,6 +1,9 @@
 /*
  * file:        dbtest.c
  * description: tester for Project 2 database
+ *
+ * this is a really ugly piece of code, need to clean it up before the
+ * next time I assign it.
  * 
  * Peter Desnoyers, 2020
  */
@@ -16,6 +19,7 @@
 #include <zlib.h>
 #include <pthread.h>
 #include <argp.h>
+#include <assert.h>
 
 #include "proj2.h"
 
@@ -31,6 +35,8 @@ static struct argp_option options[] = {
     {"quit",         'q',  0,     0, "send QUIT command"},
     {"max",          'm', "NUM",  0, "max number of keys (default 200)"},
     {"test",         'T',  0,     0, "10 simultaneous requests"},
+    {"log",          'l', "FILE", 0, "log output to FILE"},
+    {"overload",     'O',  0,     0, "try to create >200 keys"},
     {0}
 };
 
@@ -43,8 +49,12 @@ struct args {
     int max;
     int op;
     int test;
+    int overload;
     char *key;
     char *val;
+    char *logfile;
+    FILE *logfp;
+    pthread_mutex_t logm;
     struct sockaddr_in addr;
 };
 
@@ -57,8 +67,21 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
         a->count = 1000;
         a->port = 5000;
         a->max = 200;
+        a->logfp = NULL;
+        pthread_mutex_init(&a->logm, NULL);
         break;
 
+    case 'O':
+        a->overload = 1;
+        break;
+        
+    case 'l':
+        a->logfile = arg;
+        if ((a->logfp = fopen(arg, "w")) == NULL)
+            fprintf(stderr, "Error opening logfile : %s : %s\n", arg,
+                    strerror(errno)), exit(1);
+        break;
+        
     case 'T':
         a->test = 1;
         break;
@@ -137,10 +160,14 @@ char get_op(struct args *args)
         lo = args->max * 15 / 100;
     char op = 'W';
     int n = random();
-    if (n_objects >= hi)
+    pthread_mutex_lock(&m);
+    int nn = n_objects;
+    pthread_mutex_unlock(&m);
+    
+    if (nn >= hi)
         op = (n % 20 > 10) ? 'R' : 'D';
-    if (n_objects >= lo)
-        op = ((random() % 100) > (n_objects - lo)) ? 'W' : 'R';
+    if (nn >= lo)
+        op = ((random() % 100) > (nn - lo)) ? 'W' : 'R';
     return op;
 }
 
@@ -148,15 +175,16 @@ int pick_random(void)
 {
     pthread_mutex_lock(&m);
     int num;
-    for (;;) {
+    for (int i = 0; i < 20; i++) {
         num = random() % 150;
-        if (table[num].len > 0 && !table[num].busy)
-            break;
+        if (table[num].len > 0 && !table[num].busy) {
+            table[num].busy = 1;
+            pthread_mutex_unlock(&m);
+            return num;
+        }
     }
-    table[num].busy = 1;
     pthread_mutex_unlock(&m);
-
-    return num;
+    return -1;
 }
 
 int get_free(void)
@@ -164,7 +192,7 @@ int get_free(void)
     int num;
     pthread_mutex_lock(&m);
     for (num = 0; num < 150; num++)
-        if (table[num].len == 0)
+        if (table[num].len == 0 && !table[num].busy)
             break;
     table[num].busy = 1;
     pthread_mutex_unlock(&m);
@@ -199,27 +227,43 @@ void *thread(void *_ptr)
         char op = get_op(a);
         char name[32];
 
+        memset(&rq, 0, sizeof(rq));
+        
         if (op == 'W') {
             int num = -1;
-            int rewrite = (random() % 10 < 2);
-            pthread_mutex_lock(&m);
-            n_objects++;
-            pthread_mutex_unlock(&m);
-            
-            if (rewrite) {
+            if (random() % 10 < 2)
                 num = pick_random();
+            int rewrite = (num != -1);
+
+            if (rewrite) {
+                assert(table[num].busy);
+                pthread_mutex_lock(&m);
                 strcpy(name, table[num].name);
+                pthread_mutex_unlock(&m);
             }
             else {
+                pthread_mutex_lock(&m);
+                n_objects++;
+                pthread_mutex_unlock(&m);
                 memset(name, 0, sizeof(name));
                 randstr(name, 16);
-                num = get_free();
+                num = get_free(); /* sets busy=1 */
+                assert(table[num].busy);
+                strcpy(table[num].name, name);
             }
             
+            /* invariant: name == table[num].name, busy=1 
+             */
             int len = 20 + random() % 600;
             randstr(buf, len);
             int _crc = crc32(-1, (unsigned char*)buf, len);
 
+            if (a->logfp) {
+                pthread_mutex_lock(&a->logm);
+                fprintf(a->logfp, "W %s = %d,%d\n", name, len, _crc);
+                pthread_mutex_unlock(&a->logm);
+            }
+                
             rq.op_status = op;
             sprintf(rq.len, "%d", len);
             sprintf(rq.name, "%s", name);
@@ -232,17 +276,25 @@ void *thread(void *_ptr)
             else if (val < sizeof(rq))
                 printf("WRITE: REPLY: SHORT READ: %d\n", val);
 
+            pthread_mutex_lock(&m);
+            assert(strcmp(table[num].name, name) == 0);
             strcpy(table[num].name, name);
             table[num].len = len;
             table[num].crc = _crc;
-            table[num].busy = 0; /* no need to lock */
+            table[num].busy = 0; 
+            pthread_mutex_unlock(&m); /* make helgrind happy */
         }
         else if (op == 'R' || op == 'D') {
-            num = pick_random();
-
+            for (num = pick_random(); num == -1; ) {
+                usleep(100);
+                num = pick_random();
+            }
+            
+            pthread_mutex_lock(&m);
             strcpy(name, table[num].name);
             saved_crc = table[num].crc;
             saved_len = table[num].len;
+            pthread_mutex_unlock(&m); /* make helgrind happy */
             
             rq.op_status = op;
             sprintf(rq.len, "0");
@@ -257,7 +309,7 @@ void *thread(void *_ptr)
 
             if (op == 'R') {
                 int len = atol(rq.len);
-                for (void *ptr = buf, *max = ptr+len; ptr < max; ) {
+                for (void *ptr = buf, *max = ptr+len; ptr < max;) {
                     int n = read(sock, ptr, max-ptr);
                     if (n < 0) {
                         printf("READ DATA: READ ERROR: %s\n", strerror(errno));
@@ -265,8 +317,16 @@ void *thread(void *_ptr)
                     }
                     ptr += n;
                 }
-
+                
                 int _crc = crc32(-1, (unsigned char*)buf, len);
+
+                if (a->logfp) {
+                    pthread_mutex_lock(&a->logm);
+                    fprintf(a->logfp, "R %s = %d,%d %d\n\n", name,
+                            len, _crc, saved_len);
+                    pthread_mutex_unlock(&a->logm);
+                }
+                    
                 if (len != saved_len)
                     printf("READ %s: bad len %d (should be %d)\n",
                            name, len, saved_len);
@@ -274,12 +334,14 @@ void *thread(void *_ptr)
                     printf("READ %s: bad cksum %d (should be %d)\n",
                            name, _crc, saved_crc);
 
+                pthread_mutex_lock(&m);
                 table[num].busy = 0;
+                pthread_mutex_unlock(&m);
             }
             else if (op == 'D') {
+                pthread_mutex_lock(&m);
                 table[num].len = 0;
                 table[num].busy = 0;
-                pthread_mutex_lock(&m);
                 n_objects--;
                 pthread_mutex_unlock(&m);
             }
@@ -291,7 +353,7 @@ void *thread(void *_ptr)
     return NULL;
 }
 
-void do_del(struct args *args, char *name, char *result)
+void do_del(struct args *args, char *name, char *result, int quiet)
 {
     int sock = do_connect(&args->addr);
     
@@ -301,12 +363,12 @@ void do_del(struct args *args, char *name, char *result)
     rq.op_status = 'D';
     int val = write(sock, &rq, sizeof(rq));
     if ((val = read(sock, &rq, sizeof(rq))) < 0)
-        printf("WRITE: REPLY: READ ERROR: %s\n", strerror(errno));
+        printf("DEL: REPLY: READ ERROR: %s\n", strerror(errno));
     else if (val < sizeof(rq))
-        printf("WRITE: REPLY: SHORT READ: %d\n", val);
-    else if (rq.op_status != 'K')
-        printf("WRITE: FAILED (%c)\n", rq.op_status);
-    else
+        printf("DEL: REPLY: SHORT READ: %d\n", val);
+    else if (rq.op_status != 'K' && !quiet)
+        printf("DEL: FAILED (%c)\n", rq.op_status);
+    else if (!quiet)
         printf("ok\n");
 
     if (result != NULL)
@@ -315,7 +377,7 @@ void do_del(struct args *args, char *name, char *result)
     close(sock);
 }
 
-void do_set(struct args *args, char *name, void *data, int len, char *result)
+void do_set(struct args *args, char *name, void *data, int len, char *result, int quiet)
 {
     int sock = do_connect(&args->addr);
     
@@ -331,9 +393,9 @@ void do_set(struct args *args, char *name, void *data, int len, char *result)
         printf("WRITE: REPLY: READ ERROR: %s\n", strerror(errno));
     else if (val < sizeof(rq))
         printf("WRITE: REPLY: SHORT READ: %d\n", val);
-    else if (rq.op_status != 'K')
+    else if (rq.op_status != 'K' && !quiet)
         printf("WRITE: FAILED (%c)\n", rq.op_status);
-    else
+    else if (!quiet)
         printf("ok\n");
 
     if (result != NULL)
@@ -420,7 +482,7 @@ void *test_thread(void *ptr)
         test_p += sprintf(test_p, "%d: W %s len=%d crc=%x ->\n",
                           t->num, t->name, len, crc);
         pthread_mutex_unlock(&m);
-        do_set(a, t->name, data, len, &result);
+        do_set(a, t->name, data, len, &result, 1);
         pthread_mutex_lock(&m);
         test_p += sprintf(test_p, " - %d: W %s =%c (len=%d crc=%x)\n",
                           t->num, t->name, result, len, crc);
@@ -446,7 +508,7 @@ void *test_thread(void *ptr)
         test_p += sprintf(test_p, "%d: D %s ->\n", t->num, t->name);
         pthread_mutex_unlock(&m);
 
-        do_del(a, t->name, &result);
+        do_del(a, t->name, &result, 1);
 
         pthread_mutex_lock(&m);
         test_p += sprintf(test_p, " - %d: D %s =%c\n",
@@ -482,9 +544,28 @@ void do_test(struct args *a)
     printf("%s", test_log);
 }
 
+void do_overload(struct args *a)
+{
+    char name[30];
+    char data[100];
+    
+    for (int i = 0; i < 250; i++) {
+        sprintf(name, "KEY-%04d", i);
+        randstr(data, sizeof(data));
+        do_set(a, name, data, sizeof(data), NULL, 1);
+    }
+
+    for (int i = 0; i < 250; i++) {
+        sprintf(name, "KEY-%04d", i);
+        randstr(data, sizeof(data));
+        do_del(a, name, NULL, 1);
+    }
+}
+    
 int main(int argc, char **argv)
 {
     struct args args;
+    memset(&args, 0, sizeof(args));
     
     argp_parse(&argp, argc, argv, 0, 0, &args);
             
@@ -495,12 +576,14 @@ int main(int argc, char **argv)
 
     if (args.test)
         do_test(&args);
+    else if (args.overload)
+        do_overload(&args);
     else if (args.op == OP_SET)
-        do_set(&args, args.key, args.val, strlen(args.val), NULL);
+        do_set(&args, args.key, args.val, strlen(args.val), NULL, 0);
     else if (args.op == OP_GET)
         do_get(&args, args.key, NULL, NULL, NULL);
     else if (args.op == OP_DELETE)
-        do_del(&args, args.key, NULL);
+        do_del(&args, args.key, NULL, 0);
     else if (args.op == OP_QUIT)
         do_quit(&args);
     else if (args.nthreads == 1)
@@ -513,5 +596,8 @@ int main(int argc, char **argv)
         for (int i = 0; i < args.nthreads; i++)
             pthread_join(th[i], &tmp); /* will wait forever */
     }
+    for (int i = 0; i < 150; i++)
+        if (table[i].len > 0)
+            do_del(&args, table[i].name, NULL, 1);
 }
 
