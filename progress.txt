@@ -1,0 +1,154 @@
+CS5600: Computer Systems
+
+Project 2 - Threaded server Progress report
+
+Team: NULL_pointer
+    Members: 
+        1.Satish Kumar Anbalagan
+            a.Email -anbalagan.s@northeastern.edu
+            b.NUID –001351994
+        2.Chuhan Zhang
+            a.Email -zhang.chuh@northeastern.edu
+            b.NUID -001388346
+
+Git logs
+
+Total commits – 16 commits
+    1.Satish Kumar Anbalagan – 13 commits
+    2.Chuhan Zhang –  3 commits
+
+satish@ubuntu:~/cs5600/cs5600-p2-threaded-server-null_pointer$ git log
+commit 6c524a37dba01f2a4752c612ec09146fc53461ca (HEAD -> dev, origin/dev)
+Author: Satish Kumar Anbalagan <anbalagan.s@northeastern.edu>
+Date:   Fri Nov 6 21:26:21 2020 -0500
+
+    progress update
+
+commit 992011f410b4c35ce1eb97ad0cfcce9176b8ddf6
+Merge: 554cc66 a57c7ac
+Author: Satish Kumar Anbalagan <anbalagan.s@northeastern.edu>
+Date:   Fri Nov 6 21:23:31 2020 -0500
+
+    Merge branch 'dev' of https://github.com/khoury-fall20-cs5600-desnoyers/cs5600-p2-threaded-server-null_pointer into dev
+
+commit 554cc66acc8f229a8d310d2fd1fee541969f279c
+Merge: 0f53529 6c21e5d
+Author: Satish Kumar Anbalagan <anbalagan.s@northeastern.edu>
+Date:   Fri Nov 6 21:22:42 2020 -0500
+
+    progress update
+
+commit a57c7ac29db0b913261c49f719428f9f8a28e0fc
+Author: Chuhan Zhang <39284586+ChuhanZhangGit@users.noreply.github.com>
+Date:   Fri Nov 6 21:19:53 2020 -0500
+
+    Update progress.txt
+
+commit 0f53529b3eee89d313ff32aa591b9e8e6759da19
+Author: Satish Kumar Anbalagan <anbalagan.s@northeastern.edu>
+Date:   Fri Nov 6 21:14:57 2020 -0500
+
+    progress report
+
+commit 8941664a54f185a2eabff892c48a8102fad6aed5
+Author: Satish Kumar Anbalagan <anbalagan.s@northeastern.edu>
+Date:   Fri Nov 6 21:14:20 2020 -0500
+
+    progress report
+
+commit 6c21e5dfce20132ee245072668c6b4022d6b205a
+Author: Chuhan Zhang <39284586+ChuhanZhangGit@users.noreply.github.com>
+Date:   Fri Nov 6 21:13:38 2020 -0500
+
+    Create progress.txt
+
+commit 6d6e354bdee32633ed81c7393ff5a36b5e78b06f
+Author: Satish Kumar Anbalagan <anbalagan.s@northeastern.edu>
+Date:   Fri Nov 6 21:11:08 2020 -0500
+
+    added initial data structure for cmd/reply and multi- thread
+
+commit 9427ba79875e5f2f98dff1efaceffbceac1de687
+Author: Satish Kumar Anbalagan <anbalagan.s@northeastern.edu>
+Date:   Fri Nov 6 20:01:07 2020 -0500
+
+    added display_stats() declaration
+
+commit 184a5519b6bc99c2757163631e287d714048dc82
+Author: Satish Kumar Anbalagan <anbalagan.s@northeastern.edu>
+Date:   Fri Nov 6 20:00:39 2020 -0500
+
+    initial implementation of handle_work, queue_work, get_work functions.
+
+commit 29669732ee50cd012613d2f743f01aa3bdbef0e7
+Author: Satish Kumar Anbalagan <anbalagan.s@northeastern.edu>
+Date:   Fri Nov 6 19:35:13 2020 -0500
+
+    read, write function declaration & implementation
+
+commit 20106941604ebcf25c1d666f68b66f3642a100fb
+Author: Satish Kumar Anbalagan <anbalagan.s@northeastern.edu>
+Date:   Fri Nov 6 19:21:11 2020 -0500
+
+    input log
+
+commit b3f846325a2ee7d6b559068bb6aec5fa38a3374b
+Author: Satish Kumar Anbalagan <anbalagan.s@northeastern.edu>
+Date:   Fri Nov 6 19:17:12 2020 -0500
+
+    initial commit dbserver
+
+commit fd3733941870ccf6584b6ca2cc7c91dcc2c6494d (origin/master, origin/HEAD, master)
+Author: Peter Desnoyers <pjd@ccs.neu.edu>
+Date:   Wed Nov 4 16:46:31 2020 -0500
+
+    Setting up GitHub Classroom Feedback
+
+commit 64a1151945a3219e5752b0724536c1cb668253fd (origin/feedback)
+Author: Peter Desnoyers <pjd@ccs.neu.edu>
+Date:   Wed Nov 4 16:46:30 2020 -0500
+
+    GitHub Classroom Feedback
+
+commit e29ab04ac678af1aab2bcf28e4243bce2f230bf0
+Author: Maria Jump <57185717+mjump-northeastern@users.noreply.github.com>
+Date:   Wed Nov 4 16:46:27 2020 -0500
+
+    Initial commit
+
+Progress:
+
+We discussed about the project 2's design and implementation in three phases.
+First part - decided to implement the basic functionalities of the server.
+Second part - decided to do multi-thread implementation and do changes accordingly. 
+Third part - commenting, clean up & testing of the codebase and data base.
+
+## Preparation
+1. Find and read material and documentation about socket and related methods.
+2. Discussed the timeline to complete the assignment.
+3. Understand the READ_ME of project 2 step by step.
+4. Complilation problem still persists on a MacOS machine after argo-standalone package installed.Fixed it by adding additional flag in compilation. 
+
+## Progress
+
+1) Satish, Chuhan - Checked & understood the requirements fully.
+2) Satish, Chuhan - Initial design of functionalities.
+3) Satish - Creation & initial commit of dbserver.c.
+4) Satish - read data function declaration & implementation.
+5) Satish - write data function declaration & implementation.
+6) Satish - Added quit & stats logic for user input.
+6) Satish - initial implementation of display_stats function.
+6) Satish - initial implementation of handle_work function.
+6) Satish - initial implementation of queue_work function.
+6) Satish - initial implementation of get_work function.
+7) Satish - code commenting.
+8) Satish - code error checks and clean up.
+9) Satish - added progress report. 
+10) Satish - added initial data structure for cmd/reply and multi- thread
+11) Satish - added progress report
+12) Chuhan - progress report.
+13) Chuhan - main function modified.
+14) Chuhan - listener function.
+15) Satish - Initial multi-thread implementation.
+16) 
+
