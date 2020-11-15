@@ -8,8 +8,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "queue.h"
-
 // Macros
 #define MAX 4096
 #define MAX_STORE 200
@@ -47,6 +45,17 @@ typedef struct command_reply_t {
     char* data;
 } command_reply_t;
 
+typedef struct qNode {
+    int val;
+    struct qNode* next;
+} qNode_t;
+
+typedef struct queue {
+    qNode_t* head;
+    qNode_t* tail;
+    unsigned int size;
+} queue_t;
+
 // global variable
 stats_t* stats;
 queue_t* job_queue;
@@ -61,6 +70,11 @@ char* keys[MAX_STORE];
 int status[MAX_STORE];
 
 // function declaration
+void enqueue(queue_t* queue, int val);
+int dequeue(queue_t* queue);
+void print_queue(queue_t* queue);
+queue_t* create_queue();
+void free_queue(queue_t* queue);
 void* listener(void* ptr);
 void* handle_work(void* worker_id);
 int handle_work_helper(int socket);
