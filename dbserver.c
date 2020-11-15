@@ -102,6 +102,64 @@ void update_stats(command_reply_t* reply, char flag);
 void init_cmd(command_t* cmd);
 void init_cmd_reply(command_reply_t* reply);
 
+
+void enqueue(queue_t* queue, int val) {
+    qNode_t* newNode = (qNode_t*)malloc(sizeof(qNode_t));
+    newNode->next = NULL;
+    newNode->val = val;
+    if (queue->tail == NULL) {
+        queue->head = newNode;
+        queue->tail = newNode;
+    } else {
+        queue->tail->next = newNode;
+        queue->tail = newNode;
+    }
+    queue->size++;
+}
+
+int dequeue(queue_t* queue) {
+    if (queue->head == NULL) {
+        fprintf(stderr, "Error: try to dequeue empty queue.");
+        return -1;
+    }
+    qNode_t* tmp = queue->head;
+    queue->head = queue->head->next;
+
+    if (queue->head == NULL) {
+        queue->tail = NULL;
+    }
+    int val = tmp->val;
+    free(tmp);
+    queue->size--;
+    return val;
+}
+
+void print_queue(queue_t* queue) {
+    qNode_t* curr = queue->head;
+    while (curr != NULL) {
+        fprintf(stderr, "%d ", curr->val);
+        curr = curr->next;
+    }
+}
+
+queue_t* create_queue() {
+    queue_t* q = malloc(sizeof(queue_t));
+    q->head = NULL;
+    q->tail = NULL;
+    q->size = 0;
+    return q;
+}
+
+void free_queue(queue_t* queue) {
+    qNode_t* curr = queue->head;
+    while (curr != NULL) {
+        qNode_t * next = curr->next;
+        free(curr);
+        curr = next;
+    }
+    free(queue);
+}
+
 // function definition
 void* listener(void* ptr) {
     int port = 5000;
@@ -160,7 +218,7 @@ void* handle_work(void* worker_id) {
 
 int handle_work_helper(int sock_fd) {
     char buff[MAX];
-    int n;
+    //int n;
     fprintf(stderr, "handle work, fd: %d\n", sock_fd);
     // infinite loop for chat
 
