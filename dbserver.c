@@ -69,6 +69,9 @@ char* keys[MAX_STORE];
 
 int status[MAX_STORE];
 
+int port = 5000;    // Default port
+
+
 // function declaration
 void enqueue(queue_t* queue, int val);
 int dequeue(queue_t* queue);
@@ -176,7 +179,6 @@ void free_queue(queue_t* queue) {
 
 // function definition
 void* listener(void* ptr) {
-    int port = 5000;
     int sock = socket(AF_INET, SOCK_STREAM, 0); /* (A) */
     struct sockaddr_in addr = {.sin_family = AF_INET,
                                .sin_port = htons(port), /* (B) */
@@ -190,7 +192,7 @@ void* listener(void* ptr) {
         int fd = accept(sock, NULL, NULL); /* (E) */
 
         if (fd < 0)
-            perror("server acccept failed...\n"), exit(0);
+            perror("server acccept failed...\n"), exit(1);
         else
             perror("server acccept the client...\n");
 
@@ -522,12 +524,17 @@ void free_before_exit() {
     }
 }
 
-int main() {
+int main(int argc, char **argv) {
     system("rm -f ./tmp/data.*");
     // make directory for database store files.
     mkdir(DB_DIR, 0777);
     char line[128]; /* or whatever */
     stats = (stats_t*)malloc(sizeof(stats_t));
+    if(argc > 1) {
+        port = atoi(argv[1]);
+        printf("Port used: %d\n", port);
+    }
+
     job_queue = create_queue();
     pthread_t tid[5];  // 1 listener, 4 worker
     int worker_ids[5];
@@ -545,7 +552,7 @@ int main() {
         rc = pthread_create(&tid[i], NULL, handle_work, (void*)&worker_ids[i]);
         if (rc) {
             printf("Error:unable to create thread, %d\n", rc);
-            exit(-1);
+            exit(1);
         }
     }
 
