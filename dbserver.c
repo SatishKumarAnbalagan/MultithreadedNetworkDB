@@ -86,23 +86,81 @@ int read_status[MAX_STORE];
 int write_status[MAX_STORE];
 
 // function declaration
+
+/**
+ * @brief print queue content
+ * 
+ * @param queue queue
+ */
+void print_queue(queue_t* queue);
+
+/**
+ * @brief Create a queue object on Heap with malloc
+ * 
+ * @return queue_t* pointer to queue created.
+ */
+queue_t* create_queue();
+
+/**
+ * @brief enqueue an value,
+ * 
+ * @param queue pointer to queue
+ * @param val value
+ */
+void enqueue(queue_t* queue, int val);
+
+/**
+ * @brief dequeue an value.
+ * 
+ * @param queue 
+ * @return int dequeued value
+ */
+int dequeue(queue_t* queue);
+
+/**
+ * @brief Free memory of queue including elements inside of queue.
+ * 
+ * @param queue 
+ */
+void free_queue(queue_t* queue);
+
+/**
+ * @brief listener thread function. establish listener on socket.
+ *
+ * @param ptr placeholder
+ * @return void* placeholder
+ */
 void* listener(void* ptr);
 
+/**
+ * @brief worker thread function. It will wait on signal of job queue when new
+ * job is received.
+ *
+ * @param worker_id worker thread id
+ * @return void*
+ */
 void* handle_work(void* worker_id);
+
+/**
+ * @brief helper function to handle work
+ *
+ * @param socket
+ * @return int
+ */
 int handle_work_helper(int socket);
+
+/**
+ * @brief 
+ * 
+ * @param sock_fd 
+ * @return int 
+ */
+int queue_work(int sock_fd);
 
 void prerequest_process(command_t* request, int* p_idx, char* p_status,
                         char* p_flag);
 void postrequest_update(char flag, char status, int idx);
-void enqueue(queue_t* queue, int val);
-int dequeue(queue_t* queue);
-void print_queue(queue_t* queue);
-queue_t* create_queue();
-void free_queue(queue_t* queue);
-void* listener(void* ptr);
-void* handle_work(void* worker_id);
-int handle_work_helper(int socket);
-int queue_work(int sock_fd);
+
 int get_work();
 int read_data(char* filename, char* buf);
 int write_data(char* filename, char* buf, int len);
