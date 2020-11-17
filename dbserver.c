@@ -70,7 +70,7 @@ pthread_mutex_t queue_cond_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t queue_cond = PTHREAD_COND_INITIALIZER;
 
 pthread_mutex_t db_mutex = PTHREAD_MUTEX_INITIALIZER;
-
+pthread_mutex_t stat_mutex = PTHREAD_MUTEX_INITIALIZER;
 char* keys[MAX_STORE];
 
 int port = 5000;  // Default port
@@ -86,23 +86,81 @@ int read_status[MAX_STORE];
 int write_status[MAX_STORE];
 
 // function declaration
+
+/**
+ * @brief print queue content
+ *
+ * @param queue queue
+ */
+void print_queue(queue_t* queue);
+
+/**
+ * @brief Create a queue object on Heap with malloc
+ *
+ * @return queue_t* pointer to queue created.
+ */
+queue_t* create_queue();
+
+/**
+ * @brief enqueue an value,
+ *
+ * @param queue pointer to queue
+ * @param val value
+ */
+void enqueue(queue_t* queue, int val);
+
+/**
+ * @brief dequeue an value.
+ *
+ * @param queue
+ * @return int dequeued value
+ */
+int dequeue(queue_t* queue);
+
+/**
+ * @brief Free memory of queue including elements inside of queue.
+ *
+ * @param queue
+ */
+void free_queue(queue_t* queue);
+
+/**
+ * @brief listener thread function. establish listener on socket.
+ *
+ * @param ptr placeholder
+ * @return void* placeholder
+ */
 void* listener(void* ptr);
 
+/**
+ * @brief worker thread function. It will wait on signal of job queue when new
+ * job is received.
+ *
+ * @param worker_id worker thread id
+ * @return void*
+ */
 void* handle_work(void* worker_id);
+
+/**
+ * @brief helper function to handle work
+ *
+ * @param socket
+ * @return int
+ */
 int handle_work_helper(int socket);
+
+/**
+ * @brief
+ *
+ * @param sock_fd
+ * @return int
+ */
+int queue_work(int sock_fd);
 
 void prerequest_process(command_t* request, int* p_idx, char* p_status,
                         char* p_flag);
 void postrequest_update(char flag, char status, int idx);
-void enqueue(queue_t* queue, int val);
-int dequeue(queue_t* queue);
-void print_queue(queue_t* queue);
-queue_t* create_queue();
-void free_queue(queue_t* queue);
-void* listener(void* ptr);
-void* handle_work(void* worker_id);
-int handle_work_helper(int socket);
-int queue_work(int sock_fd);
+
 int get_work();
 int read_data(char* filename, char* buf);
 int write_data(char* filename, char* buf, int len);
@@ -110,9 +168,12 @@ void display_stats();
 
 void init_global();
 
-void handle_read(int socket, command_t* request, int idx);
-void handle_write(int socket, command_t* request, int idx, char flag);
-void handle_delete(int socket, command_t* request, int idx);
+void handle_read(int socket, command_t* request, command_reply_t* reply,
+                 int idx);
+void handle_write(int socket, command_t* request, command_reply_t* reply,
+                  int idx, char flag);
+void handle_delete(int socket, command_t* request, command_reply_t* reply,
+                   int idx);
 
 /**
  * @brief search key in DB
@@ -141,10 +202,6 @@ void send_reply(int socket, command_reply_t* reply, char flag);
 void update_stats(command_reply_t* reply, char flag);
 void init_cmd(command_t* cmd);
 void init_cmd_reply(command_reply_t* reply);
-
-void handle_read(int socket, command_t* request, int idx);
-void handle_write(int socket, command_t* request, int idx, char flag);
-void handle_delete(int socket, command_t* request, int idx);
 
 /**
  * @brief search key in DB
@@ -239,7 +296,7 @@ void* listener(void* ptr) {
                                .sin_addr.s_addr = 0};
     if (bind(sock, (struct sockaddr*)&addr, sizeof(addr)) < 0) /* (C) */
         perror("can't bind"), exit(1);
-    if (listen(sock, 2) < 0) /* (D) */
+    if (listen(sock, 3) < 0) /* (D) */
         perror("listen"), exit(1);
 
     while (1) {
@@ -250,9 +307,9 @@ void* listener(void* ptr) {
         else
             perror("server acccept the client...\n");
 
-        printf("file descriptor: %d\n", fd);
+        // printf("file descriptor: %d\n", fd);
 
-        usleep(random() % 10000);
+        // usleep(random() % 10000);
 
         pthread_mutex_lock(&queue_cond_mutex);
         queue_work(fd);
@@ -278,8 +335,8 @@ void* handle_work(void* worker_id) {
             pthread_cond_wait(&queue_cond, &queue_cond_mutex);
         }
         int sock_fd = get_work();
-        pthread_mutex_unlock(&queue_cond_mutex);
 
+        pthread_mutex_unlock(&queue_cond_mutex);
         handle_work_helper(sock_fd);
     }
 
@@ -287,14 +344,6 @@ void* handle_work(void* worker_id) {
 }
 
 int handle_work_helper(int sock_fd) {
-    char buff[MAX];
-    //int n;
-    // int n;
-    fprintf(stderr, "handle work, fd: %d\n", sock_fd);
-    // infinite loop for chat
-
-    bzero(buff, MAX);
-
     // read request message to request struct. Excluding data of request
     // which will be read later by handle_write.
     command_t* request = malloc(sizeof(*request));
@@ -306,14 +355,13 @@ int handle_work_helper(int sock_fd) {
     fprintf(stderr, "Request:\n");
     fprintf(stderr, "Op: %c \t name: %s \t len: %d\n", request->op,
             request->name, atoi(request->len));
-    fprintf(stderr, "first key %s\n", keys[0]);
 
     char flag = request->op;
     char status = OP_VALID;
     int idx = -1;
-    // if (flag == WRITE_FLAG) {
-    //     usleep(random() % 10000);
-    // }
+    if (flag == WRITE_FLAG) {
+        usleep(random() % 10000);
+    }
 
     pthread_mutex_lock(&db_mutex);
     prerequest_process(request, &idx, &status, &flag);
@@ -321,7 +369,8 @@ int handle_work_helper(int sock_fd) {
     pthread_mutex_unlock(&db_mutex);
     fprintf(stderr, "idx: %d, status: %c, flag: %c\n", idx, status, flag);
 
-    if (status == OP_INVALID || status == OP_BLOCKED || status == OP_EXCEED_STORE) {
+    if (status == OP_INVALID || status == OP_BLOCKED ||
+        status == OP_EXCEED_STORE) {
         command_reply_t* reply = malloc(sizeof(*reply));
         reply->status = 'X';
         send_reply(sock_fd, reply, flag);
@@ -329,21 +378,25 @@ int handle_work_helper(int sock_fd) {
         return 1;
     }
     if (idx == -1) {
-        fprintf(stderr, "OP is valid but idx is %d; status: %c, flag: %c\n", idx, status, flag);
+        fprintf(stderr, "OP is valid but idx is %d; status: %c, flag: %c\n",
+                idx, status, flag);
         exit(1);
     }
+    command_reply_t* reply = malloc(sizeof(*reply));
+    init_cmd_reply(reply);
+
     switch (request->op) {
         case READ_FLAG:
-            handle_read(sock_fd, request, idx);
+            handle_read(sock_fd, request, reply, idx);
             break;
         case WRITE_FLAG:
-            handle_write(sock_fd, request, idx, flag);
+            handle_write(sock_fd, request, reply, idx, flag);
             break;
         case OVERWRITE_FLAG:
-            handle_write(sock_fd, request, idx, flag);
+            handle_write(sock_fd, request, reply, idx, flag);
             break;
         case DELETE_FLAG:
-            handle_delete(sock_fd, request, idx);
+            handle_delete(sock_fd, request, reply, idx);
             break;
         default:
             fprintf(stderr, "unknown command.\n");
@@ -354,8 +407,15 @@ int handle_work_helper(int sock_fd) {
     postrequest_update(flag, status, idx);
     pthread_mutex_unlock(&db_mutex);
 
-    free(request);
+    // Distinguish between write and overwrite here when update status.
+    update_stats(reply, flag);
 
+    char reply_flag = flag == OVERWRITE_FLAG ? WRITE_FLAG : flag;
+
+    send_reply(sock_fd, reply, reply_flag);
+    free(request);
+    free(reply->data);
+    free(reply);
     return 0;
 }
 void postrequest_update(char flag, char status, int idx) {
@@ -370,7 +430,10 @@ void postrequest_update(char flag, char status, int idx) {
             case WRITE_FLAG:
                 write_status[idx] = KEY_VALID;
                 read_status[idx] = KEY_VALID;
-                printf("write request, status updated.");
+                break;
+            case OVERWRITE_FLAG:
+                write_status[idx] = KEY_VALID;
+                read_status[idx] = KEY_VALID;
                 break;
             case DELETE_FLAG:
                 read_status[idx] = KEY_INVALID;
@@ -413,16 +476,18 @@ void prerequest_process(command_t* request, int* p_idx, char* p_status,
                 read_status[idx]++;
             }
         }
+    } else {
+        write_status[idx] = KEY_BUSY;
     }
 
     fprintf(stderr, "idx: %d, status: %c, flag: %c\n", idx, *p_status, flag);
 }
 
-void handle_read(int socket, command_t* request, int idx) {
+void handle_read(int socket, command_t* request, command_reply_t* reply,
+                 int idx) {
     char* store_key = request->name;
     fprintf(stderr, "handle read, read key: %s\n", store_key);
-    command_reply_t* reply = malloc(sizeof(*reply));
-    init_cmd_reply(reply);
+
     reply->status = 'X';
     sprintf(reply->len, "%d", 0);
     // read from database
@@ -439,13 +504,10 @@ void handle_read(int socket, command_t* request, int idx) {
         reply->status = 'K';
         sprintf(reply->len, "%d", sz);
     }
-    send_reply(socket, reply, READ_FLAG);
-    update_stats(reply, READ_FLAG);
-    free(reply->data);
-    free(reply);
 }
 
-void handle_write(int socket, command_t* request, int idx, char flag) {
+void handle_write(int socket, command_t* request, command_reply_t* reply,
+                  int idx, char flag) {
     char* store_key = request->name;
     int len = atoi(request->len);
 
@@ -457,12 +519,14 @@ void handle_write(int socket, command_t* request, int idx, char flag) {
     val_print[len] = 0;
     fprintf(stderr, "Write request data: %s\n", val_print);
 
-    // add new key to keys array.
+    // add new key to keys array. DB mutex lock is needed here.
     if (flag == WRITE_FLAG) {
+        pthread_mutex_lock(&db_mutex);
         char* new_key = malloc(sizeof(char) * len);
         strncpy(new_key, store_key, len);
         keys[idx] = new_key;
         fprintf(stderr, "new key: %s added to key array\n", keys[idx]);
+        pthread_mutex_unlock(&db_mutex);
     }
 
     // write a new entry with non-existing key.
@@ -470,24 +534,17 @@ void handle_write(int socket, command_t* request, int idx, char flag) {
     create_path(path, idx);
     fprintf(stderr, "write path: %s \n", path);
 
-    command_reply_t* reply = malloc(sizeof(command_reply_t));
-    init_cmd_reply(reply);
-
     if (write_data(path, store_val, len) < 0) {
         reply->status = 'X';
     } else {
         reply->status = 'K';
     }
-    send_reply(socket, reply, WRITE_FLAG);
-    // Distinguish between write and overwrite here when update status.
-    update_stats(reply, flag);
-    free(reply);
 }
 
-void handle_delete(int socket, command_t* request, int idx) {
+void handle_delete(int socket, command_t* request, command_reply_t* reply,
+                   int idx) {
     char* store_key = request->name;
-    command_reply_t* reply = malloc(sizeof(*reply));
-    init_cmd_reply(reply);
+
     reply->status = 'X';
     if (index >= 0) {
         // remove database store file.
@@ -495,24 +552,23 @@ void handle_delete(int socket, command_t* request, int idx) {
         create_path(db_filename, idx);
         if (remove(db_filename) == 0) {
             reply->status = 'K';
+            pthread_mutex_lock(&db_mutex);
             free(keys[idx]);
             keys[idx] = NULL;
             fprintf(stderr, "key: %s is removed\n", store_key);
+            pthread_mutex_unlock(&db_mutex);
+
         } else {
             fprintf(stderr, "database file unable to remove.\n");
         }
     }
-    send_reply(socket, reply, DELETE_FLAG);
-    update_stats(reply, DELETE_FLAG);
-    free(reply);
 }
 
 int search_key(char* key) {
     int i;
 
     for (i = 0; i < MAX_STORE; i++) {
-        if (read_status[i] != KEY_INVALID && write_status[i] != KEY_INVALID &&
-            strcmp(keys[i], key) == 0) {
+        if (write_status[i] == KEY_VALID && strcmp(keys[i], key) == 0) {
             return i;
         }
     }
@@ -570,6 +626,7 @@ void send_reply(int socket, command_reply_t* reply, char flag) {
 }
 
 void update_stats(command_reply_t* reply, char flag) {
+    pthread_mutex_lock(&stat_mutex);
     switch (flag) {
         case READ_FLAG:
             stats->no_read_request++;
@@ -599,6 +656,7 @@ void update_stats(command_reply_t* reply, char flag) {
     } else {
         stats->no_failed_request++;
     }
+    pthread_mutex_unlock(&stat_mutex);
 }
 
 void create_path(char* path, int index) {
@@ -655,14 +713,21 @@ void display_stats() {
 }
 
 void free_before_exit() {
+    pthread_mutex_lock(&stat_mutex);
     free(stats);
+    pthread_mutex_unlock(&stat_mutex);
+    pthread_mutex_lock(&queue_cond_mutex);
+
     free(job_queue);
+    pthread_mutex_unlock(&queue_cond_mutex);
+    pthread_mutex_lock(&db_mutex);
     int i;
     for (i = 0; i < MAX_STORE; i++) {
         if (keys[i] != NULL) {
             free(keys[i]);
         }
     }
+    pthread_mutex_unlock(&db_mutex);
 }
 
 void init_global() {
@@ -678,6 +743,7 @@ int main(int argc, char** argv) {
     system("rm -f ./tmp/data.*");
     // make directory for database store files.
     mkdir(DB_DIR, 0777);
+    init_global();
     char line[128]; /* or whatever */
     stats = (stats_t*)malloc(sizeof(stats_t));
     if (argc > 1) {
@@ -707,7 +773,7 @@ int main(int argc, char** argv) {
     }
 
     while (fgets(line, sizeof(line), stdin) != NULL) {
-        printf("Input: %s\n", line);
+        // printf("Input: %s\n", line);
         if (strcmp("quit\n", line) == 0) {
             free_before_exit();
             exit(0);
