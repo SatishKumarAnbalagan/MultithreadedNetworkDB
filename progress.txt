@@ -122,6 +122,8 @@ We discussed about the project 2's design and implementation in three phases.
 First part - decided to implement the basic functionalities of the server.
 Second part - decided to do multi-thread implementation and do changes accordingly. 
 Third part - commenting, clean up & testing of the codebase and data base.
+Edit: 
+In the end, we decided to implement single thread version of server first and tested. Then do multi-thread.
 
 ## Preparation
 1. Find and read material and documentation about socket and related methods.
@@ -150,5 +152,19 @@ Third part - commenting, clean up & testing of the codebase and data base.
 13) Chuhan - main function modified.
 14) Chuhan - listener function.
 15) Satish - Initial multi-thread implementation.
-16) 
+16) Chuhan - implemented handle_read, 
+17) Chuhan - implemented handle_write, 
+18) Chuhan - implementation of handle_delete
+19) Chuhan - implement update_stats to update status acorrding to database
+20) Chuhan - implement queue data structure for get_work, queue work.
+21) Satish, Chuhan - tested single thread with testing script and some manual testing.
+22) Satish, Chuhan - Discussed multi thread implementation
+23) Chuhan - refactor handle_work, and other database related function
+24) Chuhan - Initial multi thread implementation
+25) Satish, Chuhan - Tested the multi-thread implementation, discussed failed test cases
+26) Chuhan - added missed lock from result of helgrind, add additional lock to make helgrind happy
+27) Satish, Chuhan - debug the code
+28) Satish - write the testing script
+
+
 
