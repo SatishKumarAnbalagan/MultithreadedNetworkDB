@@ -389,7 +389,7 @@ void* listener(void* ptr) {
                                .sin_addr.s_addr = 0};
     if (bind(sock, (struct sockaddr*)&addr, sizeof(addr)) < 0) /* (C) */
         perror("can't bind"), exit(1);
-    if (listen(sock, 3) < 0) /* (D) */
+    if (listen(sock, 2) < 0) /* (D) */
         perror("listen"), exit(1);
 
     while (1) {
