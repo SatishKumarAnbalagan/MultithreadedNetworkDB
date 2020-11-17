@@ -26,11 +26,23 @@ sleep 1
 ./dbtest --port=$PORT --overload
 
 # give it 5 second to finish overload test, get up and running.
-sleep 5
+sleep 1
 ./dbtest --port=$PORT --test
 
 # give it 5 second to finish test, get up and running.
-sleep 5
-./dbtest --port=$PORT --count 10000 --threads 5
-wait
+sleep 1
+./dbtest --port=$PORT --count 1000 --threads 5
 
+sleep 1
+./dbtest --port=$PORT --count 1000 --threads 10
+
+sleep 1
+./dbtest --port=$PORT --count 10000 --threads 15
+
+sleep 1
+./dbtest --port=$PORT --count 10000 --threads 20
+
+sleep 1
+./dbtest --port=$PORT --count 100000 --threads 30
+
+wait
