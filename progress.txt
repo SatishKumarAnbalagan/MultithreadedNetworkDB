@@ -13,12 +13,151 @@ Team: NULL_pointer
 
 Git logs
 
-Total commits – 16 commits
-    1.Satish Kumar Anbalagan – 13 commits
-    2.Chuhan Zhang –  3 commits
+Total commits – 39 commits
+    1.Satish Kumar Anbalagan – 31 commits
+    2.Chuhan Zhang –  5 commits
 
 satish@ubuntu:~/cs5600/cs5600-p2-threaded-server-null_pointer$ git log
-commit 6c524a37dba01f2a4752c612ec09146fc53461ca (HEAD -> dev, origin/dev)
+commit f5aa0ac2829e0b62bfcc82dde16a00ece8d1349b (HEAD -> dev, origin/dev)
+Author: SatishKumarAnbalagan <anbalagan.s@husky.neu.edu>
+Date:   Mon Nov 16 23:48:49 2020 -0500
+
+    update to no. of  listener
+
+commit d4b38d37a9b808b2782e6a61cf51e5c85cc75a4c
+Author: SatishKumarAnbalagan <anbalagan.s@husky.neu.edu>
+Date:   Mon Nov 16 23:04:02 2020 -0500
+
+    Timing changes
+
+commit ee9d1cec0d46194e0c67cd2683e9a672747486c7
+Author: Chuhan Zhang <zhangchuhan1995@gmail.com>
+Date:   Mon Nov 16 22:37:04 2020 -0500
+
+    update progress
+
+commit 772454b90164e6da7af245db5e0799530f88537d
+Author: Chuhan Zhang <zhangchuhan1995@gmail.com>
+Date:   Mon Nov 16 21:59:58 2020 -0500
+
+    more documentations
+
+commit 5d54e081e10cf59882c157f423436e5075b19f2e
+Author: SatishKumarAnbalagan <anbalagan.s@husky.neu.edu>
+Date:   Mon Nov 16 20:02:40 2020 -0500
+
+    comment & testing time change
+
+commit a00762989b394bf55d0ee57e3b7456f16dc129f2
+Author: SatishKumarAnbalagan <anbalagan.s@husky.neu.edu>
+Date:   Mon Nov 16 19:35:36 2020 -0500
+
+    unnecessary files
+
+commit d0189f013448b95eb5b07655d2f4fbf3c3b98f28
+Author: SatishKumarAnbalagan <anbalagan.s@husky.neu.edu>
+Date:   Mon Nov 16 19:33:06 2020 -0500
+
+    removing bin
+
+commit 6160896e3aff1fab35f4cf8bc9a816a5f111e371
+Merge: e750f19 1c6c7a4
+Author: SatishKumarAnbalagan <anbalagan.s@husky.neu.edu>
+Date:   Mon Nov 16 19:32:32 2020 -0500
+
+    Merge branch 'dev' of https://github.com/khoury-fall20-cs5600-desnoyers/cs5600-p2-threaded-server-null_pointer into dev
+
+commit e750f1964a5d17ddbbda6114d8e09aa7184f1762
+Author: SatishKumarAnbalagan <anbalagan.s@husky.neu.edu>
+Date:   Mon Nov 16 19:27:32 2020 -0500
+
+    modified stress testing
+
+commit 75f419aa0602164a16823ae6d3783dad2f7a714a
+Author: SatishKumarAnbalagan <anbalagan.s@husky.neu.edu>
+Date:   Mon Nov 16 19:25:49 2020 -0500
+
+    race condition, overwrite changes & code comment
+
+commit 1c6c7a45f7be101b9faa88778b0c21204172e841
+Author: Chuhan Zhang <zhangchuhan1995@gmail.com>
+Date:   Sun Nov 15 22:35:58 2020 -0500
+
+    some documentation
+
+commit b73e1e0b3247f8303393a11e3626e7e5d543dfd8
+Author: SatishKumarAnbalagan <anbalagan.s@husky.neu.edu>
+Date:   Sun Nov 15 21:43:43 2020 -0500
+
+    test script timing changes
+
+commit 9a00ad9838eddd174f3d1b5cc24383ce369cad53
+Author: SatishKumarAnbalagan <anbalagan.s@husky.neu.edu>
+Date:   Sun Nov 15 21:40:06 2020 -0500
+
+    race condition soln
+
+commit 44e6706dc6382e4fc0f8bab86dc27b01be019e1f
+Author: SatishKumarAnbalagan <anbalagan.s@husky.neu.edu>
+Date:   Sun Nov 15 15:25:03 2020 -0500
+
+    input port arg & return error
+
+commit 3695e0d2a480d2508b9fc15b36e726942d45e5b9
+Author: SatishKumarAnbalagan <anbalagan.s@husky.neu.edu>
+Date:   Sun Nov 15 15:22:30 2020 -0500
+
+    Testing script
+
+commit 278642939bc82abb347437a8766abaf80c3439e7
+Author: SatishKumarAnbalagan <anbalagan.s@husky.neu.edu>
+Date:   Sat Nov 14 19:54:37 2020 -0500
+
+    queue updsates
+
+commit 20e15c67c42214a03bba3a903cc998d8508a2384
+Author: SatishKumarAnbalagan <anbalagan.s@husky.neu.edu>
+Date:   Sat Nov 14 19:51:36 2020 -0500
+
+    queue updates
+
+commit 3bc27328882ef8e0d90455a697baac09037765f3
+Author: SatishKumarAnbalagan <anbalagan.s@husky.neu.edu>
+Date:   Sat Nov 14 19:38:40 2020 -0500
+
+    added queue logic
+
+commit 87ebeaf6a00af13954a2ba0f1c141eca81d72fed
+Author: SatishKumarAnbalagan <anbalagan.s@husky.neu.edu>
+Date:   Sat Nov 14 19:30:13 2020 -0500
+
+    handling read write delete DB with multithread
+
+commit 8f9fc552822401c26eea28c43c6a7d80c3dc8b1e
+Author: Satish Kumar Anbalagan <anbalagan.s@northeastern.edu>
+Date:   Sat Nov 14 17:57:40 2020 -0500
+
+    dbtest changes
+
+commit d37da49c5eaca778acf77a559a44e4b7ed60f6cf
+Author: Satish Kumar Anbalagan <anbalagan.s@northeastern.edu>
+Date:   Sat Nov 14 17:21:44 2020 -0500
+
+    unwanted checkins
+
+commit 6fef82b26e5a119cac857b544584b6b349ae0ec7
+Author: Satish Kumar Anbalagan <anbalagan.s@northeastern.edu>
+Date:   Fri Nov 6 21:34:00 2020 -0500
+
+    missed semi colon
+
+commit e4d77544e65cd869532f2eb0dffc8322535e0b5f
+Author: Satish Kumar Anbalagan <anbalagan.s@northeastern.edu>
+Date:   Fri Nov 6 21:29:20 2020 -0500
+
+    progress
+
+commit 6c524a37dba01f2a4752c612ec09146fc53461ca
 Author: Satish Kumar Anbalagan <anbalagan.s@northeastern.edu>
 Date:   Fri Nov 6 21:26:21 2020 -0500
 
@@ -98,7 +237,7 @@ Date:   Fri Nov 6 19:17:12 2020 -0500
 
     initial commit dbserver
 
-commit fd3733941870ccf6584b6ca2cc7c91dcc2c6494d (origin/master, origin/HEAD, master)
+commit fd3733941870ccf6584b6ca2cc7c91dcc2c6494d
 Author: Peter Desnoyers <pjd@ccs.neu.edu>
 Date:   Wed Nov 4 16:46:31 2020 -0500
 
@@ -115,6 +254,7 @@ Author: Maria Jump <57185717+mjump-northeastern@users.noreply.github.com>
 Date:   Wed Nov 4 16:46:27 2020 -0500
 
     Initial commit
+(END)
 
 Progress:
 
@@ -122,6 +262,8 @@ We discussed about the project 2's design and implementation in three phases.
 First part - decided to implement the basic functionalities of the server.
 Second part - decided to do multi-thread implementation and do changes accordingly. 
 Third part - commenting, clean up & testing of the codebase and data base.
+Edit: 
+In the end, we decided to implement single thread version of server first and tested. Then do multi-thread.
 
 ## Preparation
 1. Find and read material and documentation about socket and related methods.
@@ -150,5 +292,19 @@ Third part - commenting, clean up & testing of the codebase and data base.
 13) Chuhan - main function modified.
 14) Chuhan - listener function.
 15) Satish - Initial multi-thread implementation.
-16) 
+16) Chuhan - implemented handle_read, 
+17) Chuhan - implemented handle_write, 
+18) Chuhan - implementation of handle_delete
+19) Chuhan - implement update_stats to update status acorrding to database
+20) Chuhan - implement queue data structure for get_work, queue work.
+21) Satish, Chuhan - tested single thread with testing script and some manual testing.
+22) Satish, Chuhan - Discussed multi thread implementation
+23) Chuhan - refactor handle_work, and other database related function
+24) Chuhan - Initial multi thread implementation
+25) Satish, Chuhan - Tested the multi-thread implementation, discussed failed test cases
+26) Chuhan - added missed lock from result of helgrind, add additional lock to make helgrind happy
+27) Satish, Chuhan - debug the code
+28) Satish - write the testing script
+
+
 

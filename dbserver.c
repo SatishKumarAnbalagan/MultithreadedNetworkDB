@@ -150,28 +150,105 @@ void* handle_work(void* worker_id);
 int handle_work_helper(int socket);
 
 /**
- * @brief
+ * @brief queue incoming request socket work
  *
- * @param sock_fd
- * @return int
+ * @param sock_fd socket fd
+ * @return int 0 if success.
  */
 int queue_work(int sock_fd);
 
+/**
+ * @brief Get one queued request socket fd.
+ * 
+ * @return int socket fd
+ */
+int get_work();
+
+/**
+ * @brief validate request and update the status of key accordingly.
+ *
+ * @param request request
+ * @param p_idx index of key, if key isn't valid idx = -1
+ * @param p_status status of the request. It can be valid, invalid, etc.
+ * @param p_flag flag of request, in additon to R/W/D, overwrite is also
+ * possible.
+ */
 void prerequest_process(command_t* request, int* p_idx, char* p_status,
                         char* p_flag);
+
+/**
+ * @brief update status of key accordingly after request is processed.
+ *
+ * @param flag flag of request, in additon to R/W/D, overwrite is also
+ * possible.
+ * @param status status of the request. It can be valid, invalid, etc.
+ * @param idx index of key, if key isn't valid idx = -1
+ */
 void postrequest_update(char flag, char status, int idx);
 
-int get_work();
+/**
+ * @brief read data from file to buffer
+ * 
+ * @param filename name of file
+ * @param buf buffer
+ * @return int status
+ */
 int read_data(char* filename, char* buf);
+
+/**
+ * @brief write data to file from buffer.
+ * 
+ * @param filename file name
+ * @param buf buffer
+ * @param len size of data
+ * @return int return status
+ */
 int write_data(char* filename, char* buf, int len);
+
+/**
+ * @brief display stats
+ * 
+ */
 void display_stats();
 
+/**
+ * @brief initialize some of the global variables
+ * 
+ */
 void init_global();
 
+/**
+ * @brief handle read requests and read from database. 
+ * 
+ * @param socket socket fd
+ * @param request request 
+ * @param reply reply
+ * @param idx index of key to read.
+ */
 void handle_read(int socket, command_t* request, command_reply_t* reply,
                  int idx);
+
+/**
+ * @brief handle write requests and write to database. It currently only will
+ * handle valid write request.
+ *
+ * @param socket socket fd
+ * @param request request
+ * @param reply reply
+ * @param idx index of key to write
+ * @param flag flag of operation. It can be OVERWRITE or WRITE.
+ */
 void handle_write(int socket, command_t* request, command_reply_t* reply,
                   int idx, char flag);
+
+/**
+ * @brief 
+ * 
+ * @param socket 
+ * @param request 
+ * @param reply 
+ * @param idx 
+ */
 void handle_delete(int socket, command_t* request, command_reply_t* reply,
                    int idx);
 
@@ -198,9 +275,29 @@ int search_free_entry();
  */
 void create_path(char* path, int index);
 
+/**
+ * @brief send reply to client.
+ * 
+ * @param socket 
+ * @param reply 
+ * @param flag 
+ */
 void send_reply(int socket, command_reply_t* reply, char flag);
+
 void update_stats(command_reply_t* reply, char flag);
+
+/**
+ * @brief Initialize a command struct with default values.
+ * 
+ * @param cmd command struct
+ */
 void init_cmd(command_t* cmd);
+
+/**
+ * @brief Initialize a command reply struct with default values.
+ * 
+ * @param reply command_reply struct.
+ */
 void init_cmd_reply(command_reply_t* reply);
 
 /**
@@ -226,10 +323,6 @@ int search_free_entry();
  */
 void create_path(char* path, int index);
 
-void send_reply(int socket, command_reply_t* reply, char flag);
-void update_stats(command_reply_t* reply, char flag);
-void init_cmd(command_t* cmd);
-void init_cmd_reply(command_reply_t* reply);
 
 void enqueue(queue_t* queue, int val) {
     qNode_t* newNode = (qNode_t*)malloc(sizeof(qNode_t));
@@ -296,7 +389,7 @@ void* listener(void* ptr) {
                                .sin_addr.s_addr = 0};
     if (bind(sock, (struct sockaddr*)&addr, sizeof(addr)) < 0) /* (C) */
         perror("can't bind"), exit(1);
-    if (listen(sock, 3) < 0) /* (D) */
+    if (listen(sock, 2) < 0) /* (D) */
         perror("listen"), exit(1);
 
     while (1) {
