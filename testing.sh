@@ -7,7 +7,7 @@ clear
 DEFAULTPORT=5000
 PORT=${1:-$DEFAULTPORT}
 echo $PORT
-(sleep 60; echo quit) | ./dbserver $PORT || echo FAILED&
+(sleep 90; echo quit) | ./dbserver $PORT || echo FAILED&
 
 # give it a second to get up and running.
 sleep 1
@@ -31,11 +31,11 @@ sleep 1
 
 # give it a second to get up and running.
 sleep 1
-./dbtest --port=$PORT --count 1000 --threads 5
+./dbtest --port=$PORT --count 10000 --threads 5
 
 # give it a second to get up and running.
 sleep 1
-./dbtest --port=$PORT --count 1000 --threads 10
+./dbtest --port=$PORT --count 10000 --threads 10
 
 # give it a second to get up and running.
 sleep 1
@@ -47,6 +47,6 @@ sleep 1
 
 # give it a second to get up and running.
 sleep 1
-./dbtest --port=$PORT --count 100000 --threads 30
+./dbtest --port=$PORT --count 10000 --threads 30
 
 wait
